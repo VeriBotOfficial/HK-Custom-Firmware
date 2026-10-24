@@ -1,4 +1,12 @@
+#include <time.h>
+#include <stdio.h>
+
 #include "./datetime_utils.h"
+
+#ifdef _WIN32
+static inline void set_date(int y, int m, int d) {}
+static inline void set_time(int h, int m, int s) {}
+#endif
 
 #define KEY_LAST_DATETIME "last_datetime"
 

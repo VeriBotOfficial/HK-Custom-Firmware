@@ -1,9 +1,33 @@
 #include "./fdb.h"
 
 #ifdef _WIN32
-#include <direct.h>
-#define mkdir(path, mode) _mkdir(path)
-#endif
+
+int flashdb_init(void) { return 0; }
+
+bool kv_set_int(const char *key, int value) { return true; }
+int kv_get_int(const char *key, int def) { return def; }
+
+bool kv_set_float(const char *key, float value) { return true; }
+float kv_get_float(const char *key, float def) { return def; }
+
+bool kv_set_bool(const char *key, bool value) { return true; }
+bool kv_get_bool(const char *key, bool def) { return def; }
+
+bool kv_set_string(const char *key, const char *value) { return true; }
+const char *kv_get_string(const char *key, const char *def) { return def; }
+
+bool kv_del(const char *key) { return true; }
+
+bool ts_add(const char *value) { return true; }
+void ts_print_query_by_time(fdb_time_t from, fdb_time_t to) {}
+void ts_query_by_time(fdb_tsl_cb cb, fdb_time_t from, fdb_time_t to) {}
+void ts_print_all_query() {}
+void ts_query_all(fdb_tsl_cb cb) {}
+size_t ts_count_get(fdb_time_t from, fdb_time_t to) { return 0; }
+size_t ts_count_all() { return 0; }
+void ts_clear(void) {}
+
+#else
 
 /* Database instances */
 #ifdef FDB_USING_KVDB
@@ -413,3 +437,5 @@ static int msh_ts_print_all(int argc, char **argv)
     return RT_EOK;
 }
 MSH_CMD_EXPORT(msh_ts_print_all, ts_print_all_query : print all logs);
+
+#endif

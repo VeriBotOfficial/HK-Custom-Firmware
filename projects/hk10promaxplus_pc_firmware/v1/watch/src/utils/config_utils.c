@@ -1,4 +1,10 @@
 #include "./config_utils.h"
+#include "./datetime_utils.h"
+
+#ifdef _WIN32
+static inline void set_date(int y, int m, int d) {}
+static inline void set_time(int h, int m, int s) {}
+#endif
 
 void load_configurations(rt_device_t lcd)
 {
@@ -25,5 +31,8 @@ void load_configurations(rt_device_t lcd)
         kv_set_int("lcd_brightness", lcd_brightness);
     }
 
-    rt_device_control(lcd, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &lcd_brightness);
+    if (lcd != RT_NULL)
+    {
+        rt_device_control(lcd, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &lcd_brightness);
+    }
 }

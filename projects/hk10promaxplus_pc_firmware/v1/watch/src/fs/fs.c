@@ -1,5 +1,6 @@
 #include "./fs.h"
 
+#ifndef _WIN32
 const struct dfs_mount_tbl mount_table[] = {
 {
      .device_name = REGION_NAME,
@@ -37,3 +38,4 @@ int mnt_init(void)
 }
 
 INIT_ENV_EXPORT(mnt_init);
+#endif

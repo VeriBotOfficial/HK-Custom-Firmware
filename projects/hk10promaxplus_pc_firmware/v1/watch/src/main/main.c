@@ -42,6 +42,7 @@
 
 #define BOOT_LOCATION 1
 
+#ifndef _WIN32
 int main(void)
 {
 #ifndef _WIN32
@@ -70,6 +71,7 @@ int main(void)
 
     return RT_EOK;
 }
+#endif
 
 #ifdef RT_USING_MODULE
 

@@ -1,21 +1,23 @@
 #include <rtdevice.h>
 #include "app_mem.h"
+
 #ifndef _WIN32
     #include "drv_lcd.h"
+    #include "perf/btn_perf.h"
+    #include "perf/vibrator_perf.h"
+    #include "perf/crown_pref.h"
 #endif
+
 #include "gui_app_fwk.h"
 #include "littlevgl2rtt.h"
 #include "log.h"
 #include "lv_ex_data.h"
 #include "lv_ext_resource_manager.h"
 #include "lv_freetype.h"
-#include "perf/btn_perf.h"
 #include "flashdb/fdb.h"
 #include "utils/datetime_utils.h"
 #include "utils/config_utils.h"
 #include "utils/custom_trans_anim.h"
-#include "perf/vibrator_perf.h"
-#include "perf/crown_pref.h"
 #include "utils/gl_styles.h"
 
 #define APP_WATCH_GUI_TASK_STACK_SIZE 16 * 1024
@@ -53,6 +55,7 @@ static uint8_t watch_thread_stack[APP_WATCH_GUI_TASK_STACK_SIZE];
 #define BSP_KEY3_PIN 25
 #define LEFT_BUTTON_ACTIVE_POL 1
 
+#ifndef _WIN32
 static void on_down_btn_callback(button_action_t event)
 {
     if (event == BUTTON_PRESSED)
@@ -87,6 +90,7 @@ static void on_crown_btn_callback(button_action_t event)
         rt_kprintf("Crown Button Pressed");
     }
 }
+#endif
 
 static void app_watch_entry()
 {
@@ -101,12 +105,15 @@ static void app_watch_entry()
     rt_err_t r = littlevgl2rtt_init(LCD_DEVICE_NAME);
     RT_ASSERT(RT_EOK == r);
 
+#ifndef _WIN32
     vibrator_buzz(200);
+#endif
 
     lv_ex_data_pool_init();
     resource_init();
     lv_freetype_open_font(true);
 
+#ifndef _WIN32
     int down_btn_id = perf_button_register(BSP_KEY1_PIN, DOWN_BUTTON_ACTIVE_POL);
     perf_button_add_trigger(down_btn_id, on_down_btn_callback);
 
@@ -117,6 +124,8 @@ static void app_watch_entry()
     perf_button_add_trigger(left_btn_id, on_left_btn_callback);
 
     crown_init();
+#endif
+
     gs_init();
     load_configurations(lcd_device);
 
@@ -154,3 +163,9 @@ int app_watch_init(void)
 }
 
 INIT_APP_EXPORT(app_watch_init);
+#ifdef _WIN32
+int app_main(void)
+{
+    return 0;
+}
+#endif

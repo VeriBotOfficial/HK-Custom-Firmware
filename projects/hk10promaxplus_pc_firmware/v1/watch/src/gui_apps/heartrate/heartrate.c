@@ -3,10 +3,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "lvsf.h"
 #include <lv_ext_resource_manager.h>
 #include <rtthread.h>
 #include <rtdevice.h>
+#ifndef _WIN32
+#include <sensor.h>
+#endif
 #include "gui_app_fwk.h"
 #include "littlevgl2rtt.h"
 #include "custom_trans_anim.h"
@@ -292,6 +300,7 @@ static void hr_timer_cb(lv_timer_t *t)
 
     float raw_sample = 0.0f;
 
+#ifndef _WIN32
     if (g_hr_algo.hw_sensor_present && g_hr_algo.hr_device != NULL)
     {
         /* Read from RT-Thread sensor driver */
@@ -310,6 +319,9 @@ static void hr_timer_cb(lv_timer_t *t)
     {
         raw_sample = hr_algo_generate_synthetic_ppg(&g_hr_algo);
     }
+#else
+    raw_sample = hr_algo_generate_synthetic_ppg(&g_hr_algo);
+#endif
 
     /* Run algorithm */
     float filtered_val = hr_algo_process_sample(&g_hr_algo, raw_sample);
@@ -419,7 +431,7 @@ static void heartrate_ui_init(lv_obj_t *parent)
     bpm_val_label = lv_label_create(main_cont);
     lv_label_set_text(bpm_val_label, "--");
     lv_obj_set_style_text_color(bpm_val_label, lv_palette_main(LV_PALETTE_RED), 0);
-    lv_obj_set_style_text_font(bpm_val_label, &lv_font_montserrat_48, 0);
+    lv_obj_set_style_text_font(bpm_val_label, &lv_font_montserrat_36, 0);
     lv_obj_align(bpm_val_label, LV_ALIGN_TOP_MID, 15, 45);
 
     lv_obj_t *bpm_unit_label = lv_label_create(main_cont);

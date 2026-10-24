@@ -8,7 +8,11 @@
 #include "custom_trans_anim.h"
 #include "agif.h"
 
+#ifdef _WIN32
+const uint8_t Rickroll_gif[1] = {0};
+#else
 LV_IMG_DECLARE(Rickroll_gif);
+#endif
 LV_IMG_DECLARE(Rickroll_icon);
 
 #define APP_ID "Rickroll"

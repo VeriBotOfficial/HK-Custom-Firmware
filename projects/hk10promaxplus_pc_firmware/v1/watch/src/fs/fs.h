@@ -4,7 +4,9 @@
 #include "dfs_file.h"
 #include "dfs_fs.h"
 #include "dfs_posix.h"
+#ifndef _WIN32
 #include "drv_flash.h"
+#endif
 #include <custom_mem_map.h>
 #include <rtthread.h>
 #include "../flashdb/fdb.h"

@@ -1,9 +1,17 @@
 #ifndef __PERF_BUTTON_H__
 #define __PERF_BUTTON_H__
 
-#include <button.h>
 #include <rtthread.h>
 #include <stdint.h>
+
+#ifndef _WIN32
+#include <button.h>
+#else
+typedef enum {
+    BUTTON_PRESSED = 0,
+    BUTTON_RELEASED,
+} button_action_t;
+#endif
 
 #ifdef __cplusplus
 extern "C"

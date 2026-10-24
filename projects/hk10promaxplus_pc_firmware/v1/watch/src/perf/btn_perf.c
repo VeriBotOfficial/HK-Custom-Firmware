@@ -1,84 +1,58 @@
 #include "./btn_perf.h"
 
+#ifdef _WIN32
+
+int32_t perf_button_register(uint32_t pin, uint8_t active_poll) { return 0; }
+int perf_button_add_trigger(int32_t handle, button_trigger_cb_t cb) { return 0; }
+
+#else
+
 static button_entry_t buttons[MAX_BUTTONS];
 static int button_count = 0;
 
 int perf_button_add_trigger(int32_t handle, button_trigger_cb_t cb)
 {
-    for (int i = 0; i < button_count; i++)
-    {
-        if (buttons[i].handle == handle && cb)
-        {
-            if (buttons[i].trigger_count < MAX_TRIGGERS_PER_BUTTON)
-            {
-                buttons[i].triggers[buttons[i].trigger_count++] = cb;
-                return 0;
-            }
-            return -1;
-        }
-    }
-    return -1;
+    if (handle < 0 || handle >= button_count) return -1;
+    button_entry_t *entry = &buttons[handle];
+
+    if (entry->trigger_count >= MAX_TRIGGERS_PER_BUTTON) return -1;
+
+    entry->triggers[entry->trigger_count++] = cb;
+    return 0;
 }
 
-static void call_triggers(int32_t handle, button_action_t event)
+static void default_button_callback(void *btn, button_action_t action)
 {
     for (int i = 0; i < button_count; i++)
     {
-        if (buttons[i].handle == handle)
+        button_entry_t *entry = &buttons[i];
+        if (entry->handle == (int32_t)btn)
         {
-            for (int j = 0; j < buttons[i].trigger_count; j++)
+            for (int j = 0; j < entry->trigger_count; j++)
             {
-                if (buttons[i].triggers[j])
-                {
-                    buttons[i].triggers[j](event);
-                }
+                if (entry->triggers[j])
+                    entry->triggers[j](action);
             }
             break;
         }
     }
-}
-
-static void button_event_handler(int32_t pin, button_action_t action)
-{
-    int32_t handle = -1;
-    for (int i = 0; i < button_count; i++)
-    {
-        if (buttons[i].pin == (uint32_t)pin)
-        {
-            handle = buttons[i].handle;
-            break;
-        }
-    }
-
-    call_triggers(handle, action);
 }
 
 int32_t perf_button_register(uint32_t pin, uint8_t active_poll)
 {
-#ifndef _WIN32
-    if (button_count >= MAX_BUTTONS)
-        return -1;
+    if (button_count >= MAX_BUTTONS) return -1;
 
-    button_cfg_t cfg;
-    cfg.pin = pin;
-    cfg.active_state = active_poll;
-    cfg.mode = PIN_MODE_INPUT;
-    cfg.button_handler = button_event_handler;
+    button_t *btn = button_create(pin, active_poll);
+    if (!btn) return -1;
 
-    int32_t id = button_init(&cfg);
-    if (id < 0)
-        return -1;
-
-    if (SF_EOK != button_enable(id))
-        return -1;
+    button_bind_callback(btn, BUTTON_PRESSED, default_button_callback);
+    button_bind_callback(btn, BUTTON_RELEASED, default_button_callback);
 
     buttons[button_count].pin = pin;
-    buttons[button_count].handle = id;
+    buttons[button_count].handle = (int32_t)btn;
     buttons[button_count].trigger_count = 0;
-    button_count++;
 
-    return id;
-#else
-    return -1;
-#endif
+    return button_count++;
 }
+
+#endif

@@ -1,7 +1,12 @@
 #ifndef FDB_H
 #define FDB_H
 
+#ifndef _WIN32
 #include "flashdb.h"
+#else
+typedef int fdb_time_t;
+typedef void (*fdb_tsl_cb)(void *tsl, void *arg);
+#endif
 #ifndef _WIN32
 #include <dfs_posix.h>
 #endif
