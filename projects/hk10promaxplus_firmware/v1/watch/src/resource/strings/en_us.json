@@ -1,4 +1,8 @@
 {
   "MainMenuString": "Main Menu",
-  "WatchfaceString": "Watchface"
+  "WatchfaceString": "Watchface",
+  "Stopwatch": "Stopwatch",
+  "Calculator": "Calculator",
+  "HeartRate": "Heart Rate",
+  "HeartRateString": "Heart Rate"
 }
