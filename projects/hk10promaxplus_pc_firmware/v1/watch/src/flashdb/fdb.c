@@ -1,5 +1,7 @@
 #include "./fdb.h"
 
+#ifdef PKG_USING_FLASHDB
+
 #ifdef _WIN32
 #include <direct.h>
 #define mkdir(path, mode) _mkdir(path)
@@ -331,85 +333,27 @@ void ts_clear(void)
     fdb_tsl_clean(p_tsdb_db);
 }
 
-/* MSH Wrappers */
-static int msh_ts_add(int argc, char **argv)
-{
-    if (argc != 2)
-    {
-        rt_kprintf("Usage: %s \"log_string\"\n", argv[0]);
-        return -RT_ERROR;
-    }
+#else /* !PKG_USING_FLASHDB */
 
-    if (ts_add(argv[1]))
-    {
-        rt_kprintf("Log added: \"%s\"\n", argv[1]);
-        return RT_EOK;
-    }
-    else
-    {
-        rt_kprintf("Failed to add log\n");
-        return -RT_ERROR;
-    }
-}
-MSH_CMD_EXPORT(msh_ts_add, ts_add<string> : append a log entry to TSDB);
+int flashdb_init(void) { return RT_EOK; }
 
-static int msh_ts_print_query_by_time(int argc, char **argv)
-{
-    if (argc != 3)
-    {
-        rt_kprintf("Usage: %s <from_time> <to_time>\n", argv[0]);
-        return -RT_ERROR;
-    }
+bool kv_set_int(const char *key, int value) { (void)key; (void)value; return true; }
+int kv_get_int(const char *key, int def) { (void)key; return def; }
+bool kv_set_float(const char *key, float value) { (void)key; (void)value; return true; }
+float kv_get_float(const char *key, float def) { (void)key; return def; }
+bool kv_set_bool(const char *key, bool value) { (void)key; (void)value; return true; }
+bool kv_get_bool(const char *key, bool def) { (void)key; return def; }
+bool kv_set_string(const char *key, const char *value) { (void)key; (void)value; return true; }
+const char *kv_get_string(const char *key, const char *def) { (void)key; return def; }
+bool kv_del(const char *key) { (void)key; return true; }
 
-    /* parse arguments */
-    long from = atol(argv[1]);
-    long to = atol(argv[2]);
-    if (from > to)
-    {
-        rt_kprintf("Error: from_time must be <= to_time\n");
-        return -RT_ERROR;
-    }
+bool ts_add(const char *value) { (void)value; return true; }
+void ts_print_query_by_time(fdb_time_t from, fdb_time_t to) { (void)from; (void)to; }
+void ts_query_by_time(fdb_tsl_cb cb, fdb_time_t from, fdb_time_t to) { (void)cb; (void)from; (void)to; }
+void ts_print_all_query(void) {}
+void ts_query_all(fdb_tsl_cb cb) { (void)cb; }
+size_t ts_count_get(fdb_time_t from, fdb_time_t to) { (void)from; (void)to; return 0; }
+size_t ts_count_all(void) { return 0; }
+void ts_clear(void) {}
 
-    ts_print_query_by_time((fdb_time_t)from, (fdb_time_t)to);
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(msh_ts_print_query_by_time, ts_print_query_by_time <from> <to>: query logs by time);
-
-static int msh_ts_count_all(int argc, char **argv)
-{
-    if (argc != 1)
-    {
-        rt_kprintf("Usage: %s\n", argv[0]);
-        return -RT_ERROR;
-    }
-    size_t cnt = ts_count_all();
-    /* ts_count_all() already prints, but we can repeat */
-    rt_kprintf("Total logs: %d\n", cnt);
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(msh_ts_count_all, ts_count_all : print count of all logs);
-
-static int msh_ts_clear(int argc, char **argv)
-{
-    if (argc != 1)
-    {
-        rt_kprintf("Usage: %s\n", argv[0]);
-        return -RT_ERROR;
-    }
-    ts_clear();
-    rt_kprintf("All logs deleted\n");
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(msh_ts_clear, ts_clear : delete all logs);
-
-static int msh_ts_print_all(int argc, char **argv)
-{
-    if (argc != 1)
-    {
-        rt_kprintf("Usage: %s\n", argv[0]);
-        return -RT_ERROR;
-    }
-    ts_print_all_query();
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(msh_ts_print_all, ts_print_all_query : print all logs);
+#endif /* PKG_USING_FLASHDB */

@@ -1,16 +1,22 @@
 #ifndef FDB_H
 #define FDB_H
 
-#include "flashdb.h"
-#ifndef _WIN32
-#include <dfs_posix.h>
-#endif
 #include <rtthread.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+#ifdef PKG_USING_FLASHDB
+    #include "flashdb.h"
+    #ifndef _WIN32
+        #include <dfs_posix.h>
+    #endif
+#else
+    typedef uint32_t fdb_time_t;
+    typedef bool (*fdb_tsl_cb)(void *tsl, void *arg);
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -59,10 +65,10 @@ extern "C"
     bool ts_add(const char *value);
     void ts_print_query_by_time(fdb_time_t from, fdb_time_t to);
     void ts_query_by_time(fdb_tsl_cb cb, fdb_time_t from, fdb_time_t to);
-    void ts_print_all_query();
+    void ts_print_all_query(void);
     void ts_query_all(fdb_tsl_cb cb);
     size_t ts_count_get(fdb_time_t from, fdb_time_t to);
-    size_t ts_count_all();
+    size_t ts_count_all(void);
     void ts_clear(void);
 
 #ifdef __cplusplus
