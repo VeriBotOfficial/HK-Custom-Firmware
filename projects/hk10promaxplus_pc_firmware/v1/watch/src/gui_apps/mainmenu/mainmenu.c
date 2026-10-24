@@ -846,7 +846,17 @@ static void page_event_callback(lv_event_t *e)
             char *cmd = (char *)lv_obj_get_user_data(app_mainmenu_ctx.anim_obj);
 
             if (cmd)
+            {
+                /* Calculate icon screen position to set transition pivot for WatchOS animation */
+                lv_area_t icon_coords;
+                lv_obj_get_coords(app_mainmenu_ctx.anim_obj, &icon_coords);
+                lv_point_t pivot;
+                pivot.x = (icon_coords.x1 + icon_coords.x2) / 2;
+                pivot.y = (icon_coords.y1 + icon_coords.y2) / 2;
+
+                cust_trans_anim_config(CUST_ANIM_TYPE_3, &pivot);
                 gui_app_run(cmd);
+            }
 
             app_mainmenu_ctx.anim_obj = NULL;
         }

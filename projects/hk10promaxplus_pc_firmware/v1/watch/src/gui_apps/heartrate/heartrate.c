@@ -12,9 +12,11 @@
 #include <lv_ext_resource_manager.h>
 #include <rtthread.h>
 #include <rtdevice.h>
+
 #ifndef _WIN32
 #include <sensor.h>
 #endif
+
 #include "gui_app_fwk.h"
 #include "littlevgl2rtt.h"
 #include "custom_trans_anim.h"
@@ -432,7 +434,7 @@ static void heartrate_ui_init(lv_obj_t *parent)
     lv_label_set_text(bpm_val_label, "--");
     lv_obj_set_style_text_color(bpm_val_label, lv_palette_main(LV_PALETTE_RED), 0);
     lv_obj_set_style_text_font(bpm_val_label, &lv_font_montserrat_36, 0);
-    lv_obj_align(bpm_val_label, LV_ALIGN_TOP_MID, 15, 45);
+    lv_obj_align(bpm_val_label, LV_ALIGN_TOP_MID, 15, 52);
 
     lv_obj_t *bpm_unit_label = lv_label_create(main_cont);
     lv_label_set_text(bpm_unit_label, "BPM");
