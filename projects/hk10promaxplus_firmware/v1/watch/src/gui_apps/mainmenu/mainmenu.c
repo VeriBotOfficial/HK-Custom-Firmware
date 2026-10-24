@@ -846,7 +846,13 @@ static void page_event_callback(lv_event_t *e)
             char *cmd = (char *)lv_obj_get_user_data(app_mainmenu_ctx.anim_obj);
 
             if (cmd)
+            {
+                static lv_point_t anim_pivot;
+                anim_pivot.x = lv_obj_get_x(app_mainmenu_ctx.anim_obj) + (lv_obj_get_width(app_mainmenu_ctx.anim_obj) >> 1);
+                anim_pivot.y = lv_obj_get_y(app_mainmenu_ctx.anim_obj) + (lv_obj_get_height(app_mainmenu_ctx.anim_obj) >> 1);
+                cust_trans_anim_config(CUST_ANIM_TYPE_3, &anim_pivot);
                 gui_app_run(cmd);
+            }
 
             app_mainmenu_ctx.anim_obj = NULL;
         }
