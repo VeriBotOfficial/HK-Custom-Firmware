@@ -1,166 +1,125 @@
-# hk-watches-hack
+# HK Watches Custom Firmware & Hack Toolkit 🚀
 
-> Reverse-engineering toolkit and project files for HK watches — includes SDK setup, build, and flashing instructions.
-
----
-
-## 🎥 Demo
-Watch the full video tutorial: [Click here to watch](https://youtu.be/__rUXXCsgEA?si=VhxFWPgzQmkTYrqj)
+Welcome! This repository contains a beginner-friendly custom firmware toolkit and reverse-engineering guide for **HK Smartwatches** powered by SiFli microcontrollers (such as **SF32LB525**).
 
 ---
 
-## 📑 Table of Contents
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Install SDK](#install-sdk)
-- [Build / Compile](#build--compile)
-- [Menu Configuration](#menu-configuration)
-- [Flashing (UART)](#flashing-uart)
-- [Wiring / Hardware Notes](#wiring--hardware-notes)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+## 📱 Supported Watch Models
+
+| Model | Chip / MCU | Main Flash Partition | Screen Resolution |
+| :--- | :--- | :--- | :--- |
+| **HK 10 Pro Max+** | SiFli SF32LB525 (240 MHz) | 3.5 MB Code Region | 410 × 494 AMOLED |
+| **HK 10 Ultra 3** | SiFli SF32LB525 (240 MHz) | 3.5 MB Code Region | 410 × 494 AMOLED |
+| **HK 9 Ultra 2** | SiFli SF32LB525 (240 MHz) | 3.5 MB Code Region | 320 × 386 AMOLED |
+| **HK 9 Mini+** | SiFli SF32LB525 / SF32LB551 | 3.5 MB Code Region | 320 × 386 AMOLED |
 
 ---
 
-## 🧩 Overview
-This repository contains:
-- SiFli SDK project files for HK watch firmware  
-  *(example path: `projects/hk10ultra3_firmware/v1/watch/project`)*
-- Build scripts and a UART flashing helper used in the demo video  
-- Documentation for reproducing the reverse-engineering workflow
+## ⚡ Key Features & Embedded Apps
+
+This custom firmware includes super-optimized built-in applications:
+
+- ⌚ **Watchface & Interactive Clock**
+- 🌀 **Interactive 3D Main Menu**
+- 🧮 **Calculator App** (Fast, lightweight grid calculator)
+- ⏱️ **Stopwatch App** (Millisecond precision timer with Start/Pause/Reset)
+- ⚙️ **Settings & Device Info** (Real-time RAM usage, MCU stats & system info)
+- 🎞️ **Custom Media / GIF Demos**
+
+> 💡 **Memory Optimization:** HK watches have strict memory limits. The firmware is optimized to remain under **3.5 MB** to fit safely within the SF32LB525 code partition!
 
 ---
 
-## ⚙️ Prerequisites
-- Windows PC (SDK tools are Windows-oriented)  
-- Installed **SiFli SDK**  
-- **Python** and **scons** (usually included with SDK)  
-- **UART-to-USB** adapter (e.g., CH340, FTDI)  
-- Basic familiarity with serial ports / command line
+## 🛠️ Step-by-Step Setup Guide for Beginners
+
+### Step 1: Install the SiFli SDK (Windows)
+
+1. Download and install the official SiFli SDK following the official guide:
+   👉 [SiFli SDK Installation Guide](https://docs.sifli.com/projects/sdk/latest/sf32lb52x/quickstart/install/script/windows.html)
+2. After installation, always launch the **"SiFli-SDK Environment"** terminal. This automatically sets up your build paths and `scons` toolchain.
 
 ---
 
-## 📦 Install SDK
-Follow the official SiFli SDK installation guide:
+### Step 2: Choose and Build Your Firmware
 
-👉 [https://docs.sifli.com/projects/sdk/latest/sf32lb52x/quickstart/install/script/windows.html](https://docs.sifli.com/projects/sdk/latest/sf32lb52x/quickstart/install/script/windows.html)
+Open the **SiFli-SDK Environment** terminal and navigate to your target model's project directory:
 
-> After installing, always use the **“SiFli-SDK Environment”** terminal — it configures all paths and tools for you.
+#### For HK 10 Pro Max+:
+```bash
+cd projects\hk10promaxplus_firmware\v1\watch\project
+scons --board=eh-lb525 -j8
+```
+
+#### For HK 10 Ultra 3:
+```bash
+cd projects\hk10ultra3_firmware\v1\watch\project
+scons --board=eh-lb525 -j8
+```
+
+#### For HK 9 Ultra 2:
+```bash
+cd projects\hk9ultra2_firmware\v1\watch\project
+scons --board=eh-lb525 -j8
+```
+
+*(Note: `-j8` compiles using 8 CPU threads. Adjust based on your computer.)*
+
+Build output binaries will be generated inside `build_eh-lb525_hcpu\`.
 
 ---
 
-## 🧰 Build / Compile
-1. Open the **SiFli-SDK Environment** shell.  
-2. Navigate to the project folder:
-   ```bash
-   cd projects\hk10ultra3_firmware\v1\watch\project
+### Step 3: Configure Settings (Optional Menuconfig)
 
-3. Compile:
-
-   ```bash
-   scons --board=eh-lb525 -j8
-   ```
-
-   * `--board=eh-lb525` sets the build target.
-   * `-j8` runs 8 jobs in parallel (adjust based on CPU cores).
-
-📁 Build outputs appear under `build_eh-lb525_hcpu`.
-
----
-
-## 🧭 Menu Configuration
-
-To open configuration UI:
+You can customize features, LCD drivers, and debugging flags using the visual menu:
 
 ```bash
 scons --menuconfig --board=eh-lb525
 ```
-
-Use **arrow keys** and **Enter** to modify settings.
-Save and exit to apply your configuration.
-
----
-
-## 🔌 Flashing (UART)
-
-1. Connect the watch to your UART-USB adapter *(see video for pinout)*.
-2. Run this command from the SDK shell:
-
-   ```bash
-   build_eh-lb525_hcpu\uart_download.bat
-   ```
-3. When prompted, choose your **COM port number** (e.g., `3`, `6`).
-
-> 💡 If flashing fails, check wiring (TX↔RX), COM port, or boot mode.
+* Use **Up/Down Arrow** keys to navigate.
+* Press **Enter** to open submenus and **Space** to toggle options.
+* Save and exit when done.
 
 ---
 
-## 🪛 Wiring / Hardware Notes
+### Step 4: Hardware Wiring & Flashing via UART
 
-Typical UART wiring:
+#### 1. Hardware Pinout
+Connect your USB-to-UART Adapter (CH340, FTDI, CP2102) to the watch debug pads:
 
-| Watch Pin | USB Adapter | Description      |
-| --------- | ----------- | ---------------- |
-| DBG_TX0        | RX          | Data transmit    |
-| DBG_RX0        | TX          | Data receive     |
-| GND            | GND         | Ground reference |
+| Watch Debug Pad | USB-UART Adapter Pin | Description |
+| :--- | :--- | :--- |
+| **DBG_TX0** | **RX** | Transmit line |
+| **DBG_RX0** | **TX** | Receive line |
+| **GND** | **GND** | Common Ground |
 
-⚠️ **Do NOT power the watch from the adapter** incorrect voltage can destroy the device.
-If your adapter is 1.8 V or 5 V, use a 3.3 V **level shifter**.
+⚠️ **IMPORTANT SAFETY WARNING:**
+* Do **NOT** connect 5V or power pins from the USB adapter to the watch!
+* Use 3.3V logic levels (or a 3.3V level shifter).
 
----
-
-## 🧯 Troubleshooting
-
-**Build errors**
-
-* Make sure you’re using *SiFli-SDK Environment*.
-* Check that `scons` and the toolchain are accessible.
-* Review the console for missing files or dependency errors.
-
-**Flashing issues**
-
-* Verify correct COM port and close other serial tools.
-* Swap TX/RX if flashing fails.
-* Confirm solid GND and stable power.
-
-**Device not responding**
-
-* Ensure proper power and wiring.
-* Retry after entering bootloader mode.
-* Avoid using adapters that output 5 V to 3.3 V lines.
-
----
-
-## 🧾 Quick Reference Commands
+#### 2. Flashing Command
+In your project directory (e.g., `projects\hk10promaxplus_firmware\v1\watch\project`), run:
 
 ```bash
-# Build project
-scons --board=eh-lb525 -j8
-
-# Open menuconfig
-scons --menuconfig --board=eh-lb525
-
-# Flash via UART
 build_eh-lb525_hcpu\uart_download.bat
 ```
+Select your adapter's COM port (e.g. `COM3` or `3`) when prompted.
 
 ---
 
-## 🤝 Contributing
+## ❓ Troubleshooting & FAQs
 
-Pull requests and improvements are welcome!
-To contribute:
-
-1. Open an issue describing your suggestion or bug.
-2. Fork the repo and push your changes.
-3. Create a Pull Request with testing notes (mention board & firmware version if possible).
-
----
-
-## ⚖️ License
-
-Apache License 2.0
+- **"scons: command not found" or build errors:**
+  Make sure you opened the **SiFli-SDK Environment** shell rather than standard Command Prompt or PowerShell.
+- **Flashing failed / Device not found:**
+  - Verify TX and RX connections (try swapping TX ↔ RX).
+  - Ensure GND is securely connected.
+  - Make sure no other program (like Serial Monitor or PuTTY) is using the COM port.
+- **Firmware size error:**
+  If your firmware binary exceeds ~3.5 MB, check if extra large images or heavy assets were added.
 
 ---
+
+## 🤝 Contributing & License
+
+Feel free to submit Pull Requests or open Issues for new apps and improvements!
+This project is released under the **Apache License 2.0**.
