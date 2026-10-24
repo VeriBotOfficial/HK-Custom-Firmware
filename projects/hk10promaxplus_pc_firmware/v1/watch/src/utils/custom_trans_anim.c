@@ -229,52 +229,64 @@ static void enter_or_exit_anim2(gui_anim_obj_t img, void *user_data, uint32_t fl
 }
 #endif /* 1 == LV_USE_GPU */
 
+static lv_point_t g_anim_pivot = {LV_HOR_RES_MAX / 2, LV_VER_RES_MAX / 2};
+static bool g_has_anim_pivot = false;
+
 static void enter_or_exit_anim_default(gui_anim_obj_t img, void *user_data, uint32_t flag, gui_anim_value_t process)
 {
 #if  LV_USE_IMG
     if (!lv_obj_check_type(img, &lv_img_class)) return;
 #endif
     lv_point_t *pivot = user_data;
-    uint16_t zoom;
-    uint16_t zoom_start, zoom_end;
+    if (!pivot && g_has_anim_pivot)
+    {
+        pivot = &g_anim_pivot;
+    }
 
-    lv_opa_t opa_v = 255 * process / MANUAL_TRAN_ANIM_MAX_PROCESS;
+    int32_t zoom;
+    int32_t zoom_start, zoom_end;
+
+    lv_opa_t opa_v = (lv_opa_t)(255 * process / MANUAL_TRAN_ANIM_MAX_PROCESS);
 
     if (flag & FLAG_TRANS_ANIM_REVERSE)
     {
+        /* App Closing / Goback Animation (Reversed WatchOS Transition) */
         if (flag & FLAG_TRANS_ANIM_FG)
         {
+            /* Exiting App Screen: Scales down from 100% (256) to 12.5% (32) towards icon pivot & fades out */
             zoom_start = LV_IMG_ZOOM_NONE;
-            zoom_end = LV_IMG_ZOOM_NONE >> 2;
+            zoom_end = LV_IMG_ZOOM_NONE / 8; // 32
             opa_v = 255 - opa_v;
         }
         else
         {
-            zoom_start = LV_IMG_ZOOM_NONE << 2;
+            /* Entering Background Main Menu: Scales down from 175% (448) to 100% (256) & fades in */
+            zoom_start = (LV_IMG_ZOOM_NONE * 7) / 4; // 448
             zoom_end = LV_IMG_ZOOM_NONE;
         }
     }
     else
     {
+        /* App Opening Animation (WatchOS Expansion) */
         if (flag & FLAG_TRANS_ANIM_FG)
         {
-            zoom_start = LV_IMG_ZOOM_NONE >> 2;
+            /* Entering App Screen: Scales up from 12.5% (32) at icon pivot to 100% (256) full screen & fades in */
+            zoom_start = LV_IMG_ZOOM_NONE / 8; // 32
             zoom_end = LV_IMG_ZOOM_NONE;
         }
         else
         {
+            /* Exiting Background Main Menu: Scales up from 100% (256) to 175% (448) & fades out */
             zoom_start = LV_IMG_ZOOM_NONE;
-            zoom_end = LV_IMG_ZOOM_NONE << 2;
+            zoom_end = (LV_IMG_ZOOM_NONE * 7) / 4; // 448
             opa_v = 255 - opa_v;
         }
     }
 
-    zoom = zoom_start + (zoom_end - zoom_start) * process / MANUAL_TRAN_ANIM_MAX_PROCESS;
+    zoom = zoom_start + (zoom_end - zoom_start) * (int32_t)process / MANUAL_TRAN_ANIM_MAX_PROCESS;
+    if (zoom < 0) zoom = 0;
 
-
-
-    lv_img_set_zoom(img, zoom);
-
+    lv_img_set_zoom(img, (uint16_t)zoom);
 
     if (pivot)
         lv_img_set_pivot(img, pivot->x, pivot->y);
@@ -282,14 +294,17 @@ static void enter_or_exit_anim_default(gui_anim_obj_t img, void *user_data, uint
         lv_img_set_pivot(img, lv_obj_get_width(img) >> 1, lv_obj_get_height(img) >> 1);
 
     lv_obj_set_style_img_opa(img, opa_v, LV_PART_MAIN);
-
-
-    //rt_kprintf("enter_anim obj %x, flag=%d, process=%d \n", img, flag, process);
 }
 
 
 void cust_trans_anim_config(CUST_ANIM_TYPE_E type, lv_point_t *pivot)
 {
+    if (pivot)
+    {
+        g_anim_pivot = *pivot;
+        g_has_anim_pivot = true;
+    }
+
     gui_app_trans_anim_t enter_anim_cfg, exit_anim_cfg;
 
     switch (type)
@@ -331,10 +346,10 @@ void cust_trans_anim_config(CUST_ANIM_TYPE_E type, lv_point_t *pivot)
         gui_app_trans_anim_init_cfg(&enter_anim_cfg, GUI_APP_TRANS_ANIM_CUSTOM);
         gui_app_trans_anim_init_cfg(&exit_anim_cfg, GUI_APP_TRANS_ANIM_CUSTOM);
         enter_anim_cfg.cfg.cust.exe_cb = enter_or_exit_anim_default;
-        enter_anim_cfg.cfg.cust.user_data = NULL;
+        enter_anim_cfg.cfg.cust.user_data = pivot ? pivot : (g_has_anim_pivot ? &g_anim_pivot : NULL);
 
         exit_anim_cfg.cfg.cust.exe_cb = enter_or_exit_anim_default;
-        exit_anim_cfg.cfg.cust.user_data = pivot;
+        exit_anim_cfg.cfg.cust.user_data = pivot ? pivot : (g_has_anim_pivot ? &g_anim_pivot : NULL);
         break;
     }
 
