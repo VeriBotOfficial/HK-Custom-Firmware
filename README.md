@@ -44,10 +44,16 @@ This custom firmware includes super-optimized built-in applications:
 
 Open the **SiFli-SDK Environment** terminal and navigate to your target model's project directory:
 
-#### For HK 10 Pro Max+:
+#### For HK 10 Pro Max+ (Smartwatch Build):
 ```bash
 cd projects\hk10promaxplus_firmware\v1\watch\project
 scons --board=eh-lb525 -j8
+```
+
+#### For HK 10 Pro Max+ (PC / Windows Simulator Build):
+```bash
+cd projects\hk10promaxplus_pc_firmware\v1\watch\project
+scons --board=pc_hcpu -j8
 ```
 
 #### For HK 10 Ultra 3:

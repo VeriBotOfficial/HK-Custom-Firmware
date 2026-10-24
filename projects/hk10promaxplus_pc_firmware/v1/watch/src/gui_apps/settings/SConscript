@@ -1,0 +1,9 @@
+# for module compiling
+import os
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.c')
+group = DefineGroup('Apps', src, depend = ['PKG_USING_LITTLEVGL2RTT'], CPPPATH = [cwd])
+
+Return('group')
